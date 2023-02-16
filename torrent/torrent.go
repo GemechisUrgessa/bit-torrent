@@ -41,6 +41,14 @@ type bencodeTorrent struct {
 	Announce string      `bencode:"announce"`
 	Info     bencodeInfo `bencode:"info"`
 }
+type bencodeMain struct {
+	Announce string      `bencode:"announce"`
+	Info     bencodeInfo `bencode:"info"`
+}
+type bencodeChar struct {
+	Announce string      `bencode:"announce"`
+	Info     bencodeInfo `bencode:"info"`
+}
 
 // ParseTorrentFile parses a .torrent file and returns a TorrentFile struct
 // GetTorrent returns a Torrent struct from the TorrentFile struct
