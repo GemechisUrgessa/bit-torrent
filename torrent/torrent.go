@@ -69,38 +69,7 @@ func (t *TorrentFile) GetTorrent() (peer2peer.Torrent, error) {
 	return torrent, nil
 }
 
-// // Connect to peers
-// func ConnectToPeers(torrent peer2peer.Torrent,
-// 	keepAliveChan chan bool) ([]*client.Client, error) {
 
-// 	var clients []*client.Client
-// 	for _, peer := range torrent.Peers {
-// 		c, err := client.New(peer, torrent.PeerID, torrent.InfoHash)
-// 		if err != nil {
-// 			log.Printf("Could not handshake with %s. Disconnecting\n", peer.IP)
-// 			continue
-// 		}
-// 		log.Printf("Completed handshake with %s\n", peer.IP)
-// 		clients = append(clients, c)
-// 	}
-// 	// Start a goroutine that sends KeepAlive messages to the peer
-//         go func() {
-//             for {
-//                 select {
-//                 case <-time.After(30 * time.Second):
-//                     keepAliveChan <- true
-//                 }
-//             }
-//         }()
-
-// 	if len(clients) == 0 {
-// 		return nil, fmt.Errorf("failed to connect to any peers")
-// 	}
-
-// 	return clients, nil
-// }
-
-// Connect to peers concurrently
 
 func ConnectToPeers(torrent peer2peer.Torrent,
 	keepAliveChan chan bool) ([]*client.Client, error) {
