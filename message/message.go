@@ -15,20 +15,28 @@ type messageID uint8
 const (
 	// MsgChoke chokes the receiver
 	MsgChoke messageID = 0
+
 	// MsgUnchoke unchokes the receiver
 	MsgUnchoke messageID = 1
+
 	// MsgInterested expresses interest in receiving data
 	MsgInterested messageID = 2
+
 	// MsgNotInterested expresses disinterest in receiving data
 	MsgNotInterested messageID = 3
+
 	// MsgHave alerts the receiver that the sender has downloaded a piece
 	MsgHave messageID = 4
+
 	// MsgBitfield encodes which pieces that the sender has downloaded
 	MsgBitfield messageID = 5
+
 	// MsgRequest requests a block of data from the receiver
 	MsgRequest messageID = 6
+
 	// MsgPiece delivers a block of data to fulfill a request
 	MsgPiece messageID = 7
+
 	// MsgCancel cancels a request
 	MsgCancel messageID = 8
 )
@@ -46,6 +54,7 @@ func ParseRequest(msg *Message) (index, begin, length int, err error) {
 	if msg.ID != MsgRequest {
 		return 0, 0, 0, fmt.Errorf("Invalid message ID for ParseRequest: %d", msg.ID)
 	}
+
 	if len(msg.Payload) != 12 {
 		return 0, 0, 0, fmt.Errorf("Invalid payload length for ParseRequest: %d", len(msg.Payload))
 	}
@@ -79,6 +88,7 @@ func FormatRequest(index, begin, length int) *Message {
 	return &Message{ID: MsgRequest, Payload: payload}
 }
 
+
 // FormatHave creates a HAVE message
 // this is a function that takes an integer and returns a pointer to a Message
 // returns a pointer to a Message
@@ -88,6 +98,7 @@ func FormatHave(index int) *Message {
 	return &Message{ID: MsgHave, Payload: payload}
 }
 
+
 // ParsePiece parses a PIECE message and copies its payload into a buffer
 // this is a function that takes an integer, a byte slice, and a pointer to a Message and returns an integer and an error
 // returns an integer and an error
@@ -95,21 +106,26 @@ func ParsePiece(index int, buf []byte, msg *Message) (int, error) {
 	if msg.ID != MsgPiece {
 		return 0, fmt.Errorf("Expected PIECE (ID %d), got ID %d", MsgPiece, msg.ID)
 	}
+
 	if len(msg.Payload) < 8 {
 		return 0, fmt.Errorf("Payload too short. %d < 8", len(msg.Payload))
 	}
+
 	parsedIndex := int(binary.BigEndian.Uint32(msg.Payload[0:4]))
 	if parsedIndex != index {
 		return 0, fmt.Errorf("Expected index %d, got %d", index, parsedIndex)
 	}
+
 	begin := int(binary.BigEndian.Uint32(msg.Payload[4:8]))
 	if begin >= len(buf) {
 		return 0, fmt.Errorf("Begin offset too high. %d >= %d", begin, len(buf))
 	}
+
 	data := msg.Payload[8:]
 	if begin+len(data) > len(buf) {
 		return 0, fmt.Errorf("Data too long [%d] for offset %d with length %d", len(data), begin, len(buf))
 	}
+
 	copy(buf[begin:], data)
 	return len(data), nil
 }
@@ -119,9 +135,11 @@ func ParseHave(msg *Message) (int, error) {
 	if msg.ID != MsgHave {
 		return 0, fmt.Errorf("Expected HAVE (ID %d), got ID %d", MsgHave, msg.ID)
 	}
+
 	if len(msg.Payload) != 4 {
 		return 0, fmt.Errorf("Expected payload length 4, got length %d", len(msg.Payload))
 	}
+
 	index := int(binary.BigEndian.Uint32(msg.Payload))
 	return index, nil
 }
@@ -149,6 +167,7 @@ func Read(r io.Reader) (*Message, error) {
 		// fmt.Println("Error while reading the legthBuf")
 		return nil, err
 	}
+
 	length := binary.BigEndian.Uint32(lengthBuf)
 
 	// keep-alive message
@@ -175,6 +194,8 @@ func (m *Message) name() string {
 	if m == nil {
 		return "KeepAlive"
 	}
+
+
 	switch m.ID {
 	case MsgChoke:
 		return "Choke"
@@ -203,5 +224,6 @@ func (m *Message) String() string {
 	if m == nil {
 		return m.name()
 	}
+	
 	return fmt.Sprintf("%s [%d]", m.name(), len(m.Payload))
 }
