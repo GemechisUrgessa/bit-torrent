@@ -55,42 +55,9 @@ type pieceProgress struct {
 	requested  int
 	backlog    int
 }
-
-// // Download downloads the torrent from the peers
-// func (t *Torrent) Download() error {
-// 	// Create a work queue and a results queue
-// 	workQueue := make(chan *pieceWork, len(t.PieceHashes))
-// 	results := make(chan *pieceResult, len(t.PieceHashes))
-
-// 	// Create a worker for each peer
-// 	for _, peer := range t.Peers {
-// 		go t.startDownloadWorker(peer, workQueue, results)
-// 	}
-
-// 	// Create a pieceWork for each piece and put it on the work queue
-// 	for i, hash := range t.PieceHashes {
-// 		length := t.PieceLength
-// 		if i == len(t.PieceHashes)-1 {
-// 			length = t.Length % t.PieceLength
-// 		}
-
-// 		workQueue <- &pieceWork{
-// 			index:  i,
-// 			hash:   hash,
-// 			length: length,
-// 		}
-// 	}
-
-// 	// Wait for all pieces to be downloaded
-// 	for i := 0; i < len(t.PieceHashes); i++ {
-// 		res := <-results
-// 		log.Printf("Downloaded piece #%d\n", res.index)
-// 	}
-
-// 	return nil
-// }
-
 // startDownloadWorker starts a worker that downloads pieces from a peer and puts them on the results queue when done downloading them (or when an error occurs)
+
+
 func (t *Torrent) startDownloadWorker(c *client.Client, workQueue chan *pieceWork,
 	results chan *pieceResult) {
 	// c, err := client.New(peer, t.PeerID, t.InfoHash)
