@@ -21,7 +21,6 @@ func addTorrent(client *torrent.Client) (*torrent.Torrent, error) {
 	path = strings.TrimSpace(path)
 	return client.AddTorrentFromFile(path)
 }
-
 func addMoreTorrents(client *torrent.Client) ([]*torrent.Torrent, error) {
 	var torrents []*torrent.Torrent
 	for {
