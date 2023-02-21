@@ -148,8 +148,11 @@ func getData(file *os.File, torrent peer2peer.Torrent, index, begin, length int)
 
 	offset := int64(index)*int64(pieceLength) + int64(begin)
 
+	
 	// Check if this is the last piece
 	lastPiece := index == numPieces-1
+
+
 
 	// Calculate the length of this piece
 	var len int
@@ -158,6 +161,7 @@ func getData(file *os.File, torrent peer2peer.Torrent, index, begin, length int)
 	} else {
 		len = torrent.PieceLength
 	}
+
 
 	buf := make([]byte, len)
 
@@ -169,3 +173,5 @@ func getData(file *os.File, torrent peer2peer.Torrent, index, begin, length int)
 	}
 	return buf, nil
 }
+
+

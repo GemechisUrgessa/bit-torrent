@@ -45,6 +45,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	
 	// Start a goroutine to send keep alive messages to the peers
 	go func() {
 		for {

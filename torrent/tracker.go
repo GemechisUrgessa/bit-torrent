@@ -22,11 +22,13 @@ func (t *TorrentFile) buildTrackerURL(peerID [20]byte, port uint16) (string, err
 	if err != nil {
 		return "", err
 	}
+
 	params := url.Values{
 		"info_hash": []string{string(t.InfoHash[:])},
 		"peer_id":   []string{string(peerID[:])},
 		"port":      []string{strconv.Itoa(int(port))},
 		"uploaded":  []string{"0"},
+
 		// "downloaded"   : []string{string(t.Length)},
 		"downloaded": []string{"0"},
 		"compact":    []string{"1"},
@@ -37,9 +39,11 @@ func (t *TorrentFile) buildTrackerURL(peerID [20]byte, port uint16) (string, err
 	return base.String(), nil
 }
 
+
 // requestPeers requests peers from the tracker and returns a slice of peers.
 func (t *TorrentFile) requestPeers(peerID [20]byte, port uint16) ([]peers.Peer, error) {
 	url, err := t.buildTrackerURL(peerID, port)
+
 	if err != nil {
 		return nil, err
 	}
@@ -49,13 +53,18 @@ func (t *TorrentFile) requestPeers(peerID [20]byte, port uint16) ([]peers.Peer, 
 	if err != nil {
 		return nil, err
 	}
+
+
 	defer resp.Body.Close()
 
 	trackerResp := bencodeTrackerResp{}
 	err = bencode.Unmarshal(resp.Body, &trackerResp)
+
 	if err != nil {
 		return nil, err
 	}
 
 	return peers.Unmarshal([]byte(trackerResp.Peers))
 }
+
+

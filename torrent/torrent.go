@@ -47,6 +47,7 @@ type bencodeTorrent struct {
 func (t *TorrentFile) GetTorrent() (peer2peer.Torrent, error) {
 	var peerID [20]byte
 	_, err := rand.Read(peerID[:])
+
 	if err != nil {
 		return peer2peer.Torrent{}, err
 	}
@@ -194,6 +195,7 @@ func (i *bencodeInfo) hash() ([20]byte, error) {
 	return h, nil
 }
 
+
 // splitPieceHashes splits the pieces field of the bencodeInfo struct into a slice of 20 byte arrays
 func (i *bencodeInfo) splitPieceHashes() ([][20]byte, error) {
 	hashLen := 20 // Length of SHA-1 hash
@@ -211,6 +213,7 @@ func (i *bencodeInfo) splitPieceHashes() ([][20]byte, error) {
 	return hashes, nil
 }
 
+// toTorrentFile converts a bencodeTorrent struct to a TorrentFile struct
 // toTorrentFile converts a bencodeTorrent struct to a TorrentFile struct
 func (bto *bencodeTorrent) toTorrentFile() (TorrentFile, error) {
 	infoHash, err := bto.Info.hash()
@@ -231,3 +234,5 @@ func (bto *bencodeTorrent) toTorrentFile() (TorrentFile, error) {
 	}
 	return t, nil
 }
+
+
