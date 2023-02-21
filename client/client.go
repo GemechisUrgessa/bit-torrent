@@ -29,7 +29,7 @@ type Client struct {
 // It returns the handshake response and an error if one occurred.
 func completeHandShake(conn net.Conn, infohash, peerID [20]byte) (*handshake.HandShake, error) {
 	conn.SetDeadline(time.Now().Add(3 * time.Second))
-	defer conn.SetDeadline(time.Time{}) // Disable the deadline.
+	defer conn.SetDeadline(time.Time{}) // Disable the deadline
 
 	req := handshake.New(infohash, peerID)
 	_, err := conn.Write(req.Serialize())
