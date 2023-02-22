@@ -24,13 +24,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	// Get the torrent struct
 	tor, err := tf.GetTorrent()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Connect to peers and download file
+	// Connect to peers and download file and start seeding
 	keepAliveChan := make(chan bool)
 	clients, err := torrent.ConnectToPeers(tor, keepAliveChan)
 	fmt.Printf("Number of clients is %d\n", len(clients))
@@ -53,13 +53,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	//
 	var wg sync.WaitGroup
+	// Add one to the wait group
 	wg.Add(1)
+	// Start seeding the file
 	go func() {
 		defer wg.Done()
 		seeder.SeedFile(clients, tor, outPath)
 	}()
-
+	// Wait for user to press enter to exit
+	fmt.Println("Leeching and seeding complete. Press enter to exit")
 	wg.Wait()
-	fmt.Println("Main function completed")
+	fmt.Println("Exiting...")
 }
