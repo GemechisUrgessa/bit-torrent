@@ -41,6 +41,7 @@ const (
 	MsgCancel messageID = 8
 )
 
+
 // Message stores ID and payload of a message
 type Message struct {
 	ID      messageID
@@ -67,6 +68,7 @@ func ParseRequest(msg *Message) (index, begin, length int, err error) {
 }
 
 // FormatPiece create a Piece message
+// FormatPiece create a Piece message
 // this is a function that takes 3 integers and a byte slice and returns a pointer to a Message
 func FormatPiece(index, begin int, data []byte) *Message {
 	payload := make([]byte, 8+len(data))
@@ -80,6 +82,7 @@ func FormatPiece(index, begin int, data []byte) *Message {
 // FormatRequest creates a REQUEST message
 // this is a function that takes 3 integers and returns a pointer to a Message
 // returns a pointer to a Message
+
 func FormatRequest(index, begin, length int) *Message {
 	payload := make([]byte, 12)
 	binary.BigEndian.PutUint32(payload[0:4], uint32(index))
@@ -92,6 +95,7 @@ func FormatRequest(index, begin, length int) *Message {
 // FormatHave creates a HAVE message
 // this is a function that takes an integer and returns a pointer to a Message
 // returns a pointer to a Message
+
 func FormatHave(index int) *Message {
 	payload := make([]byte, 4)
 	binary.BigEndian.PutUint32(payload, uint32(index))
@@ -102,7 +106,9 @@ func FormatHave(index int) *Message {
 // ParsePiece parses a PIECE message and copies its payload into a buffer
 // this is a function that takes an integer, a byte slice, and a pointer to a Message and returns an integer and an error
 // returns an integer and an error
+
 func ParsePiece(index int, buf []byte, msg *Message) (int, error) {
+
 	if msg.ID != MsgPiece {
 		return 0, fmt.Errorf("Expected PIECE (ID %d), got ID %d", MsgPiece, msg.ID)
 	}
@@ -132,6 +138,7 @@ func ParsePiece(index int, buf []byte, msg *Message) (int, error) {
 
 // ParseHave parses a HAVE message
 func ParseHave(msg *Message) (int, error) {
+
 	if msg.ID != MsgHave {
 		return 0, fmt.Errorf("Expected HAVE (ID %d), got ID %d", MsgHave, msg.ID)
 	}
@@ -151,13 +158,18 @@ func (m *Message) Serialize() []byte {
 	if m == nil {
 		return make([]byte, 4)
 	}
+
+
 	length := uint32(len(m.Payload) + 1) // +1 for id
 	buf := make([]byte, 4+length)
+
 	binary.BigEndian.PutUint32(buf[0:4], length)
 	buf[4] = byte(m.ID)
 	copy(buf[5:], m.Payload)
+	
 	return buf
 }
+
 
 // Read parses a message from a stream. Returns `nil` on keep-alive message
 func Read(r io.Reader) (*Message, error) {
@@ -199,26 +211,36 @@ func (m *Message) name() string {
 	switch m.ID {
 	case MsgChoke:
 		return "Choke"
+
 	case MsgUnchoke:
 		return "Unchoke"
+
 	case MsgInterested:
 		return "Interested"
+
 	case MsgNotInterested:
 		return "NotInterested"
+
 	case MsgHave:
 		return "Have"
+
 	case MsgBitfield:
 		return "Bitfield"
+
 	case MsgRequest:
 		return "Request"
+
 	case MsgPiece:
 		return "Piece"
+
 	case MsgCancel:
 		return "Cancel"
+
 	default:
 		return fmt.Sprintf("Unknown#%d", m.ID)
 	}
 }
+
 
 func (m *Message) String() string {
 	if m == nil {
@@ -227,3 +249,5 @@ func (m *Message) String() string {
 	
 	return fmt.Sprintf("%s [%d]", m.name(), len(m.Payload))
 }
+
+
