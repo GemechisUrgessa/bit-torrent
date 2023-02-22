@@ -1,3 +1,6 @@
+// Description: Message package for the BitTorrent client implementation.
+// This is a package that contains the following:  messageID, Message, and ParseRequest functions and types
+// it is used to parse messages from the peer
 package message
 
 import (
@@ -6,6 +9,7 @@ import (
 	"io"
 )
 
+// this is a messageID type that is an unsigned 8-bit integer (uint8)
 type messageID uint8
 
 const (
@@ -36,6 +40,8 @@ type Message struct {
 }
 
 // ParseRequst parses a Request message and returns the index, begin, and length
+// of the requested piece
+// this is a function that takes a pointer to a Message and returns 3 integers and an error
 func ParseRequest(msg *Message) (index, begin, length int, err error) {
 	if msg.ID != MsgRequest {
 		return 0, 0, 0, fmt.Errorf("Invalid message ID for ParseRequest: %d", msg.ID)
@@ -52,8 +58,9 @@ func ParseRequest(msg *Message) (index, begin, length int, err error) {
 }
 
 // FormatPiece create a Piece message
-func FormatPiece(index, begin int , data []byte) *Message {
-	payload := make([]byte, 8 + len(data))
+// this is a function that takes 3 integers and a byte slice and returns a pointer to a Message
+func FormatPiece(index, begin int, data []byte) *Message {
+	payload := make([]byte, 8+len(data))
 
 	binary.BigEndian.PutUint32(payload[0:4], uint32(index))
 	binary.BigEndian.PutUint32(payload[4:8], uint32(begin))
@@ -62,6 +69,8 @@ func FormatPiece(index, begin int , data []byte) *Message {
 }
 
 // FormatRequest creates a REQUEST message
+// this is a function that takes 3 integers and returns a pointer to a Message
+// returns a pointer to a Message
 func FormatRequest(index, begin, length int) *Message {
 	payload := make([]byte, 12)
 	binary.BigEndian.PutUint32(payload[0:4], uint32(index))
@@ -71,6 +80,8 @@ func FormatRequest(index, begin, length int) *Message {
 }
 
 // FormatHave creates a HAVE message
+// this is a function that takes an integer and returns a pointer to a Message
+// returns a pointer to a Message
 func FormatHave(index int) *Message {
 	payload := make([]byte, 4)
 	binary.BigEndian.PutUint32(payload, uint32(index))
@@ -78,6 +89,8 @@ func FormatHave(index int) *Message {
 }
 
 // ParsePiece parses a PIECE message and copies its payload into a buffer
+// this is a function that takes an integer, a byte slice, and a pointer to a Message and returns an integer and an error
+// returns an integer and an error
 func ParsePiece(index int, buf []byte, msg *Message) (int, error) {
 	if msg.ID != MsgPiece {
 		return 0, fmt.Errorf("Expected PIECE (ID %d), got ID %d", MsgPiece, msg.ID)

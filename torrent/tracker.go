@@ -1,3 +1,4 @@
+// Description: Tracker request and response handling.
 package torrent
 
 import (
@@ -15,6 +16,7 @@ type bencodeTrackerResp struct {
 	Peers    string `bencode:"peers"`
 }
 
+// buildTrackerURL builds a tracker URL from the torrent file and peer information and returns it as a string.
 func (t *TorrentFile) buildTrackerURL(peerID [20]byte, port uint16) (string, error) {
 	base, err := url.Parse(t.Announce)
 	if err != nil {
@@ -35,6 +37,7 @@ func (t *TorrentFile) buildTrackerURL(peerID [20]byte, port uint16) (string, err
 	return base.String(), nil
 }
 
+// requestPeers requests peers from the tracker and returns a slice of peers.
 func (t *TorrentFile) requestPeers(peerID [20]byte, port uint16) ([]peers.Peer, error) {
 	url, err := t.buildTrackerURL(peerID, port)
 	if err != nil {

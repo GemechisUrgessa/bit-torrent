@@ -1,3 +1,7 @@
+// Description: This file contains the main logic for the peer2peer package.
+// It contains the Torrent struct, which holds the data required to download a torrent.
+// It also contains the main download function, which starts a worker for each peer and distributes work to them.
+// Finally, it contains the logic for downloading a piece from a peer.
 package peer2peer
 
 import (
@@ -18,6 +22,7 @@ const MaxBlockSize = 16384
 const MaxBacklog = 5
 
 // Torrent holds data required to download a torrent from a list of peers
+// It contains the following fields: Peers, PeerID, InfoHash, PieceHashes, PieceLength, Length, and Name  (all of which are of type []byte)
 type Torrent struct {
 	Peers       []peers.Peer
 	PeerID      [20]byte
@@ -28,17 +33,20 @@ type Torrent struct {
 	Name        string
 }
 
+// this struct contains the following fields: index, hash, and length
 type pieceWork struct {
 	index  int
 	hash   [20]byte
 	length int
 }
 
+// this struct contains the following fields: index, buf
 type pieceResult struct {
 	index int
 	buf   []byte
 }
 
+// this struct contains the following fields: index, client, buf, downloaded, requested, and backlog
 type pieceProgress struct {
 	index      int
 	client     *client.Client
@@ -48,6 +56,41 @@ type pieceProgress struct {
 	backlog    int
 }
 
+// // Download downloads the torrent from the peers
+// func (t *Torrent) Download() error {
+// 	// Create a work queue and a results queue
+// 	workQueue := make(chan *pieceWork, len(t.PieceHashes))
+// 	results := make(chan *pieceResult, len(t.PieceHashes))
+
+// 	// Create a worker for each peer
+// 	for _, peer := range t.Peers {
+// 		go t.startDownloadWorker(peer, workQueue, results)
+// 	}
+
+// 	// Create a pieceWork for each piece and put it on the work queue
+// 	for i, hash := range t.PieceHashes {
+// 		length := t.PieceLength
+// 		if i == len(t.PieceHashes)-1 {
+// 			length = t.Length % t.PieceLength
+// 		}
+
+// 		workQueue <- &pieceWork{
+// 			index:  i,
+// 			hash:   hash,
+// 			length: length,
+// 		}
+// 	}
+
+// 	// Wait for all pieces to be downloaded
+// 	for i := 0; i < len(t.PieceHashes); i++ {
+// 		res := <-results
+// 		log.Printf("Downloaded piece #%d\n", res.index)
+// 	}
+
+// 	return nil
+// }
+
+// startDownloadWorker starts a worker that downloads pieces from a peer and puts them on the results queue when done downloading them (or when an error occurs)
 func (t *Torrent) startDownloadWorker(c *client.Client, workQueue chan *pieceWork,
 	results chan *pieceResult) {
 	// c, err := client.New(peer, t.PeerID, t.InfoHash)
@@ -84,6 +127,7 @@ func (t *Torrent) startDownloadWorker(c *client.Client, workQueue chan *pieceWor
 	}
 }
 
+// readMessage reads a message from the peer and updates the pieceProgress struct accordingly (if the message is a piece message)
 func (state *pieceProgress) readMessage() error {
 	msg, err := state.client.Read() // this call blocks
 	if err != nil {
@@ -116,6 +160,7 @@ func (state *pieceProgress) readMessage() error {
 	return nil
 }
 
+// attemptDownloadPiece attempts to download a piece from a peer and returns the piece data (or an error if it fails)
 func attemptDownloadPiece(c *client.Client, pw *pieceWork) ([]byte, error) {
 	state := pieceProgress{
 		index:  pw.index,
@@ -156,6 +201,7 @@ func attemptDownloadPiece(c *client.Client, pw *pieceWork) ([]byte, error) {
 	return state.buf, nil
 }
 
+// checkIntegrity checks if the downloaded piece matches the hash in the torrent file and returns an error if it doesn't
 func checkIntegrity(pw *pieceWork, buf []byte) error {
 	hash := sha1.Sum(buf)
 	if !bytes.Equal(hash[:], pw.hash[:]) {
@@ -164,6 +210,7 @@ func checkIntegrity(pw *pieceWork, buf []byte) error {
 	return nil
 }
 
+// calculateBoundsForPiece calculates the begin and end byte offsets for a piece with the given index in the torrent file and returns them as a tuple
 func (t *Torrent) calculateBoundsForPiece(index int) (begin, end int) {
 	begin = index * t.PieceLength
 	end = begin + t.PieceLength
@@ -173,11 +220,13 @@ func (t *Torrent) calculateBoundsForPiece(index int) (begin, end int) {
 	return begin, end
 }
 
+// calculatePieceSize calculates the size of a piece with the given index in the torrent file and returns it as an integer
 func (t *Torrent) calculatePieceSize(index int) int {
 	begin, end := t.calculateBoundsForPiece(index)
 	return end - begin
 }
 
+// download downloads the torrent file and returns the file data (or an error if it fails)
 func (t *Torrent) Download(clients []*client.Client) ([]byte, error) {
 	log.Println("Starting download for", t.Name)
 	// Init queues for workers to retrieve work and send results

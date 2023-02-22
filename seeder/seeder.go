@@ -1,3 +1,4 @@
+// Description: This file contains the code for the seeder package.
 package seeder
 
 import (
@@ -12,6 +13,9 @@ import (
 	"bit-torrent/peer2peer"
 )
 
+// handleRequestError checks if the request is valid and returns an error if it is not valid.
+// It takes in the following parameters: torrent, index, begin, and length
+// it handles the following errors: Invalid piece index, Invalid block offset, and Invalid block length
 func handleRequestError(torrent peer2peer.Torrent, index, begin, length int) error {
 	numPieces := len(torrent.PieceHashes)
 	pieceLength := torrent.PieceLength
@@ -39,6 +43,7 @@ func handleRequestError(torrent peer2peer.Torrent, index, begin, length int) err
 	return nil
 }
 
+// seedFile seeds the file to the clients that are connected to the seeder
 func SeedFile(clients []*client.Client, torrent peer2peer.Torrent,
 	path string) {
 	fmt.Println("I have called I am the seeder")
@@ -80,6 +85,7 @@ func SeedFile(clients []*client.Client, torrent peer2peer.Torrent,
 	wg.Wait()
 }
 
+// serveClient serves the client by sending it the requested blocks of data from the file reader and handling the client's messages.
 func serveClient(wg *sync.WaitGroup, c *client.Client, torrent peer2peer.Torrent, file *os.File) {
 	defer func() {
 		c.Conn.Close()
@@ -134,6 +140,7 @@ func serveClient(wg *sync.WaitGroup, c *client.Client, torrent peer2peer.Torrent
 	}
 }
 
+// getData gets the data from the file reader and returns it as a byte array.
 func getData(file *os.File, torrent peer2peer.Torrent, index, begin, length int) ([]byte, error) {
 	numPieces := len(torrent.PieceHashes)
 	pieceLength := torrent.PieceLength

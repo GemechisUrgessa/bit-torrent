@@ -1,3 +1,4 @@
+// Description: This is the entry point for the program
 package main
 
 import (
@@ -10,6 +11,10 @@ import (
 	"bit-torrent/torrent"
 )
 
+// main is the entry point for the program
+// It takes in two arguments: the path to the .torrent file and the path to the file to be downloaded to (the file must not exist)
+// It connects to peers and downloads the file
+// It then starts seeding the file to the peers that are connected to it and waits for the user to press enter to exit
 func main() {
 	inPath := os.Args[1]
 	outPath := os.Args[2]

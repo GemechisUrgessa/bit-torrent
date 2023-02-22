@@ -1,3 +1,4 @@
+// Description: Contains the TorrentFile struct and methods to parse a .torrent file and connect to peers.
 package torrent
 
 import (
@@ -41,6 +42,8 @@ type bencodeTorrent struct {
 	Info     bencodeInfo `bencode:"info"`
 }
 
+// ParseTorrentFile parses a .torrent file and returns a TorrentFile struct
+// GetTorrent returns a Torrent struct from the TorrentFile struct
 func (t *TorrentFile) GetTorrent() (peer2peer.Torrent, error) {
 	var peerID [20]byte
 	_, err := rand.Read(peerID[:])
@@ -98,6 +101,7 @@ func (t *TorrentFile) GetTorrent() (peer2peer.Torrent, error) {
 // }
 
 // Connect to peers concurrently
+
 func ConnectToPeers(torrent peer2peer.Torrent,
 	keepAliveChan chan bool) ([]*client.Client, error) {
 
@@ -140,6 +144,7 @@ func ConnectToPeers(torrent peer2peer.Torrent,
 	return clients, nil
 }
 
+// DownloadToFile downloads the torrent file and saves it to the specified path
 func (t *TorrentFile) DownloadToFile(path string,
 	torrent peer2peer.Torrent, clients []*client.Client) error {
 	buf, err := torrent.Download(clients)
@@ -178,6 +183,7 @@ func Open(path string) (TorrentFile, error) {
 	return bto.toTorrentFile()
 }
 
+// hash returns the SHA-1 hash of the bencodeInfo struct as a byte array
 func (i *bencodeInfo) hash() ([20]byte, error) {
 	var buf bytes.Buffer
 	err := bencode.Marshal(&buf, *i)
@@ -188,6 +194,7 @@ func (i *bencodeInfo) hash() ([20]byte, error) {
 	return h, nil
 }
 
+// splitPieceHashes splits the pieces field of the bencodeInfo struct into a slice of 20 byte arrays
 func (i *bencodeInfo) splitPieceHashes() ([][20]byte, error) {
 	hashLen := 20 // Length of SHA-1 hash
 	buf := []byte(i.Pieces)
@@ -204,6 +211,7 @@ func (i *bencodeInfo) splitPieceHashes() ([][20]byte, error) {
 	return hashes, nil
 }
 
+// toTorrentFile converts a bencodeTorrent struct to a TorrentFile struct
 func (bto *bencodeTorrent) toTorrentFile() (TorrentFile, error) {
 	infoHash, err := bto.Info.hash()
 	if err != nil {

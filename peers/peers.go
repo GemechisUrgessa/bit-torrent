@@ -1,3 +1,5 @@
+// Description: Peer struct and unmarshal function for the peers package.
+
 package peers
 
 import (
@@ -12,6 +14,7 @@ type Peer struct {
 	Port uint16
 }
 
+// Unmarshal takes a byte slice and returns a slice of Peer structs and an error if one occurred.
 func Unmarshal(peersBin []byte) ([]Peer, error) {
 	const peerSize = 6 // 4 for IP, 2 for port
 	numPeers := len(peersBin) / peerSize
@@ -28,6 +31,7 @@ func Unmarshal(peersBin []byte) ([]Peer, error) {
 	return peers, nil
 }
 
+// stringer for Peer struct
 func (p Peer) String() string {
 	return net.JoinHostPort(p.IP.String(), strconv.Itoa(int(p.Port)))
 }
